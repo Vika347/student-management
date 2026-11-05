@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             version="3.1">
+
+    <!-- JPA для студентов и пользователей -->
+    <persistence-unit name="StudentPU" transaction-type="JTA">
+
+        <!-- Реализация JPA в Payara -->
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+        <!-- Подключение к PostgreSQL -->
+        <jta-data-source>jdbc/StudentDB</jta-data-source>
+
+        <!-- Сущность студента -->
+        <class>ru.itmo.studentmanagement.entity.Student</class>
+
+        <!-- Сущность пользователя  -->
+        <class>ru.itmo.studentmanagement.user.entity.User</class>
+
+        <properties>
+            <!-- Не изменять структуру базы автоматически -->
+            <property
+                    name="jakarta.persistence.schema-generation.database.action"
+                    value="none"/>
+        </properties>
+
+    </persistence-unit>
+
+</persistence>
