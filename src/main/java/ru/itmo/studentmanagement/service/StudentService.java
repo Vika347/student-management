@@ -271,30 +271,60 @@ public class StudentService {
     }
 
 
-    // Получение студентов с фильтрацией, сортировкой и пагинацией
+
+    // Получение студентов с фильтрацией по всем полям,
+    // поиском, сортировкой и пагинацией
     public List<StudentDTO> getStudentsByFilters(
+            Long id,
+            String fullName,
             String group,
+            Integer isuId,
             Integer dormNumber,
+            Integer roomNumber,
+            String settlementDate,
+            Boolean isForeigner,
+            String notes,
+            String search,
             String sortBy,
             String sortOrder,
             Integer page,
-            Integer size,
-            String search) {
+            Integer size) {
+
+        // Проверяем формат даты, если пользователь её указал
+        LocalDate parsedDate = null;
+
+        if (settlementDate != null && !settlementDate.isBlank()) {
+            try {
+                parsedDate = LocalDate.parse(settlementDate);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException(
+                        "settlementDate должна быть в формате ГГГГ-ММ-ДД"
+                );
+            }
+        }
 
         List<Student> students = studentRepository.findByFilters(
+                id,
+                fullName,
                 group,
+                isuId,
                 dormNumber,
+                roomNumber,
+                parsedDate,
+                isForeigner,
+                notes,
+                search,
                 sortBy,
                 sortOrder,
                 page,
-                size,
-                search
+                size
         );
 
         return students.stream()
                 .map(StudentMapper::toDTO)
                 .toList();
     }
+
 
 
 }

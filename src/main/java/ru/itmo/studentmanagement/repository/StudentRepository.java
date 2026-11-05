@@ -1,12 +1,17 @@
+
 package ru.itmo.studentmanagement.repository;
 
-import jakarta.persistence.TypedQuery;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+
 import ru.itmo.studentmanagement.entity.Student;
-import java.util.List;
 import ru.itmo.studentmanagement.exception.BadRequestException;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
 
 // Работа со студентами в базе данных через JPA
 @Stateless
@@ -56,33 +61,76 @@ public class StudentRepository {
                 .orElse(null);
     }
 
-
-   // Получение студентов с поиском, фильтрами, сортировкой и пагинацией
+    // Получение студентов с фильтрацией, поиском, сортировкой и пагинацией
     public List<Student> findByFilters(
+            Long id,
+            String fullName,
             String group,
+            Integer isuId,
             Integer dormNumber,
+            Integer roomNumber,
+            LocalDate settlementDate,
+            Boolean isForeigner,
+            String notes,
+            String search,
             String sortBy,
             String sortOrder,
             Integer page,
-            Integer size,
-            String search) {
+            Integer size) {
 
         // Начало JPQL-запроса
-        String jpql = "SELECT s FROM Student s WHERE 1=1";
+        StringBuilder jpql = new StringBuilder(
+                "SELECT s FROM Student s WHERE 1=1"
+        );
 
-        // Поиск по ФИО без учёта регистра
-        if (search != null && !search.isBlank()) {
-            jpql += " AND LOWER(s.fullName) LIKE :search";
+        // Фильтрация по ID
+        if (id != null) {
+            jpql.append(" AND s.id = :id");
+        }
+
+        // Фильтрация по ФИО без учёта регистра
+        if (fullName != null && !fullName.isBlank()) {
+            jpql.append(" AND LOWER(s.fullName) LIKE :fullName");
         }
 
         // Фильтрация по группе
         if (group != null) {
-            jpql += " AND s.group = :group";
+            jpql.append(" AND s.group = :group");
+        }
+
+        // Фильтрация по номеру ИСУ
+        if (isuId != null) {
+            jpql.append(" AND s.isuId = :isuId");
         }
 
         // Фильтрация по номеру общежития
         if (dormNumber != null) {
-            jpql += " AND s.dormNumber = :dormNumber";
+            jpql.append(" AND s.dormNumber = :dormNumber");
+        }
+
+        // Фильтрация по номеру комнаты
+        if (roomNumber != null) {
+            jpql.append(" AND s.roomNumber = :roomNumber");
+        }
+
+        // Фильтрация по дате заселения
+        if (settlementDate != null) {
+            jpql.append(" AND s.settlementDate = :settlementDate");
+        }
+
+        // Фильтрация по статусу иностранного студента
+        if (isForeigner != null) {
+            jpql.append(" AND s.isForeigner = :isForeigner");
+        }
+
+        // Фильтрация по примечаниям
+        if (notes != null && !notes.isBlank()) {
+            jpql.append(" AND LOWER(s.notes) LIKE :notes");
+        }
+
+        // Поиск по ФИО
+        if (search != null && !search.isBlank()) {
+            jpql.append(" AND LOWER(s.fullName) LIKE :search");
         }
 
         // Поля, по которым разрешена сортировка
@@ -93,7 +141,9 @@ public class StudentRepository {
                 "isuId",
                 "dormNumber",
                 "roomNumber",
-                "settlementDate"
+                "settlementDate",
+                "isForeigner",
+                "notes"
         );
 
         if (sortBy == null) {
@@ -117,54 +167,107 @@ public class StudentRepository {
             );
         }
 
-        // Добавляем сортировку к запросу
-        jpql += " ORDER BY s." + sortBy + " " + sortOrder.toUpperCase();
+        // Добавляем сортировку к JPQL-запросу
+        jpql.append(" ORDER BY s.")
+                .append(sortBy)
+                .append(" ")
+                .append(sortOrder.toUpperCase(Locale.ROOT));
 
-        // Создаём запрос JPA
+        // Стабильный порядок при одинаковых значениях поля сортировки
+        if (!sortBy.equals("id")) {
+            jpql.append(", s.id ASC");
+        }
+
+        // Создаём JPA-запрос
         TypedQuery<Student> query =
-                entityManager.createQuery(jpql, Student.class);
+                entityManager.createQuery(jpql.toString(), Student.class);
 
         // Подставляем значения параметров
-        if (search != null && !search.isBlank()) {
-            query.setParameter("search", "%" + search.toLowerCase() + "%");
+        if (id != null) {
+            query.setParameter("id", id);
+        }
+
+        if (fullName != null && !fullName.isBlank()) {
+            query.setParameter(
+                    "fullName",
+                    "%" + fullName.toLowerCase(Locale.ROOT) + "%"
+            );
         }
 
         if (group != null) {
             query.setParameter("group", group);
         }
 
+        if (isuId != null) {
+            query.setParameter("isuId", isuId);
+        }
+
         if (dormNumber != null) {
             query.setParameter("dormNumber", dormNumber);
         }
 
-        // Проверяем номер страницы и её размер
+        if (roomNumber != null) {
+            query.setParameter("roomNumber", roomNumber);
+        }
+
+        if (settlementDate != null) {
+            query.setParameter("settlementDate", settlementDate);
+        }
+
+        if (isForeigner != null) {
+            query.setParameter("isForeigner", isForeigner);
+        }
+
+        if (notes != null && !notes.isBlank()) {
+            query.setParameter(
+                    "notes",
+                    "%" + notes.toLowerCase(Locale.ROOT) + "%"
+            );
+        }
+
+        if (search != null && !search.isBlank()) {
+            query.setParameter(
+                    "search",
+                    "%" + search.toLowerCase(Locale.ROOT) + "%"
+            );
+        }
+
+        // Проверяем номер страницы
         if (page == null) {
             page = 1;
         }
 
+        // Проверяем размер страницы
         if (size == null) {
             size = 10;
         }
 
         if (page < 1) {
-            throw new BadRequestException("Номер страницы должен быть больше 0");
+            throw new BadRequestException(
+                    "Номер страницы должен быть больше 0"
+            );
         }
 
         if (size < 1 || size > 100) {
-            throw new BadRequestException("Размер страницы должен быть от 1 до 100");
+            throw new BadRequestException(
+                    "Размер страницы должен быть от 1 до 100"
+            );
         }
 
+        // Рассчитываем количество пропускаемых записей
         long offset = ((long) page - 1) * size;
 
         if (offset > Integer.MAX_VALUE) {
-            throw new BadRequestException("Слишком большой номер страницы");
+            throw new BadRequestException(
+                    "Слишком большой номер страницы"
+            );
         }
+
         // Ограничиваем количество возвращаемых студентов
         query.setFirstResult((int) offset);
         query.setMaxResults(size);
 
         return query.getResultList();
-
     }
-
 }
+

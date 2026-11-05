@@ -46,22 +46,37 @@ public class StudentResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<StudentDTO> getAllStudents(
+            @QueryParam("id") Long id,
+            @QueryParam("fullName") String fullName,
             @QueryParam("group") String group,
+            @QueryParam("isuId") Integer isuId,
             @QueryParam("dormNumber") Integer dormNumber,
+            @QueryParam("roomNumber") Integer roomNumber,
+            @QueryParam("settlementDate") String settlementDate,
+            @QueryParam("isForeigner") Boolean isForeigner,
+            @QueryParam("notes") String notes,
+
+            @QueryParam("search") String search,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortOrder") String sortOrder,
             @QueryParam("page") Integer page,
-            @QueryParam("size") Integer size,
-            @QueryParam("search") String search) {
+            @QueryParam("size") Integer size) {
 
         return studentService.getStudentsByFilters(
+                id,
+                fullName,
                 group,
+                isuId,
                 dormNumber,
+                roomNumber,
+                settlementDate,
+                isForeigner,
+                notes,
+                search,
                 sortBy,
                 sortOrder,
                 page,
-                size,
-                search
+                size
         );
     }
 
