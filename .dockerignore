@@ -1,0 +1,17 @@
+# Исключает лишние файлы и секреты из контекста сборки
+
+.git
+.idea
+target
+*.iml
+.DS_Store
+
+.env
+.env.*
+!.env.example
+
+*.log
+docker-schema.sql
+README.md
+student-management-postman.json
+student-management-openapi.json

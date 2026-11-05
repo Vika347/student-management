@@ -1,0 +1,7 @@
+#Создаёт JDBC-пул, JDBC-ресурс и разворачивает WAR
+
+create-jdbc-connection-pool --restype javax.sql.DataSource --datasourceclassname org.postgresql.ds.PGSimpleDataSource --property 'serverName=postgres:portNumber=5432:databaseName=student_management:user=student_app:password=${ENV=POSTGRES_PASSWORD}' StudentPool
+
+create-jdbc-resource --connectionpoolid StudentPool jdbc/StudentDB
+
+deploy --contextroot student-management /opt/payara/deployments/student-management.war
