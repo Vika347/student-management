@@ -1,7 +1,9 @@
 package ru.itmo.studentmanagement.user.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Cacheable;
 
+@Cacheable(false)
 @Entity
 @Table(name = "users")
 public class User {
