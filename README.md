@@ -230,3 +230,74 @@ http://localhost:8080/openapi
 Для логирования событий приложения используется `java.util.logging`.
 
 Сообщения о работе приложения и возникающих ошибках можно просматривать в файле `server.log` сервера Payara.
+
+## Запуск через Docker
+
+Приложение можно запустить с помощью Docker Compose. В этом случае Java backend на Payara и PostgreSQL работают в отдельных контейнерах.
+
+
+Отдельно устанавливать Java, Maven, Payara и PostgreSQL не требуется.
+
+### 1. Клонирование проекта
+
+```bash
+git clone https://github.com/Vika347/student-management.git
+cd student-management
+```
+
+### 2. Настройка переменных окружения
+
+Создать файл `.env` на основе примера:
+
+```bash
+cp .env.example .env
+```
+
+Открыть `.env` и задать собственные значения:
+
+- `POSTGRES_PASSWORD` — пароль пользователя PostgreSQL.
+- `JWT_SECRET` — случайный секрет для подписи JWT длиной не менее 32 байт.
+
+Настоящие пароли и секреты не должны добавляться в Git.
+
+### 3. Сборка и запуск
+
+```bash
+docker compose up --build -d
+```
+
+Docker Compose запускает два сервиса:
+
+- `postgres` — PostgreSQL 17.
+- `payara` — Java-приложение на Payara Server 6.
+
+При первой инициализации пустой базы выполняется скрипт `docker/init.sql`, создающий таблицы `students` и `users`.
+
+### 4. Адреса приложения
+
+После успешного запуска REST API доступно по адресу:
+
+`http://localhost:8081/student-management/api`
+
+OpenAPI-спецификация доступна по адресу:
+
+`http://localhost:8081/openapi`
+
+Для тестирования можно использовать коллекцию `student-management-postman.json`, изменив переменную `baseUrl` на адрес Docker API.
+
+
+### 5. Остановка приложения
+
+```bash
+docker compose down
+```
+
+Эта команда останавливает и удаляет контейнеры, но сохраняет данные PostgreSQL в Docker volume.
+
+Для повторного запуска:
+
+```bash
+docker compose up -d
+```
+
+Не используйте `docker compose down -v`, если необходимо сохранить данные базы: флаг `-v` удаляет также Docker volumes.
