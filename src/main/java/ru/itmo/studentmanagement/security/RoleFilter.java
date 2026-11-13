@@ -9,9 +9,9 @@ import ru.itmo.studentmanagement.auth.jwt.JwtService;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.core.MediaType;
-import java.util.Map;
 
 import java.io.IOException;
+import java.util.Map;
 
 // Проверяет права пользователя после проверки JWT
 @Provider
@@ -26,8 +26,10 @@ public class RoleFilter implements ContainerRequestFilter {
             throws IOException {
 
         String path = requestContext.getUriInfo().getPath();
+        String method = requestContext.getMethod();
 
-        if (path.startsWith("auth")) {
+        // Пропускаем авторизацию и CORS preflight
+        if (path.startsWith("auth") || method.equals("OPTIONS")) {
             return;
         }
 
@@ -42,10 +44,13 @@ public class RoleFilter implements ContainerRequestFilter {
         String token = authorizationHeader.substring(7);
         String role = jwtService.getRoleFromToken(token);
 
-        // Проверяем, изменяет ли пользователь данные студентов
+        // Методы, изменяющие данные студентов
         boolean isStudentModification =
                 path.startsWith("students")
-                        && !requestContext.getMethod().equals("GET");
+                        && (method.equals("POST")
+                        || method.equals("PUT")
+                        || method.equals("PATCH")
+                        || method.equals("DELETE"));
 
         // Изменять студентов может только ADMIN
         if ((path.startsWith("admin") || isStudentModification)

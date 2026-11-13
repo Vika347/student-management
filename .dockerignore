@@ -7,8 +7,8 @@ target
 .DS_Store
 
 .env
-.env.*
-!.env.example
+.env
+!.env
 
 *.log
 docker-schema.sql

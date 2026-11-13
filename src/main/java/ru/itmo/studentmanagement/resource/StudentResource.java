@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -144,7 +145,7 @@ public class StudentResource {
     }
 
 
-    // Удаление студента из бд по ID
+    // Удаление студента  по ID
     @Operation(
             summary = "Удалить студента",
             description = "Удаляет студента из базы данных по его уникальному идентификатору"
@@ -221,6 +222,7 @@ public class StudentResource {
     }
 
 
+
     // Полное обновление
     @Operation(
             summary = "Полностью обновить студента",
@@ -262,5 +264,26 @@ public class StudentResource {
         }
 
         return Response.ok(updatedStudent).build();
+    }
+
+
+    // Получение студентов через QUERY (когда больше 2 полей)
+    @Operation(
+            summary = "Фильтрация студентов через QUERY",
+            description = "Получает студентов по фильтрам, переданным в JSON-теле запроса"
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Список студентов успешно получен"
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Некорректные параметры фильтрации"
+    )
+    @QUERY
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<StudentDTO> queryStudents(JsonObject filters) {
+        return studentService.queryStudents(filters);
     }
 }

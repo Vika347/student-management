@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html lang="ru">
+        <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Форма студента</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐈</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__icon">🐈</span>
+        <span class="navbar__title">Студенты</span>
+    </div>
+    <ul class="navbar__menu">
+        <li class="navbar__item"><a href="index.html" class="navbar__link">📋 Список</a></li>
+        <li class="navbar__item">
+            <a href="form.html" class="navbar__link active" aria-current="page">➕ Добавить</a>
+        </li>
+        <li class="navbar__item"><a href="swagger.html" class="navbar__link">📖 API</a></li>
+        <li class="navbar__item"><span id="navbar-user" class="navbar__link" style="pointer-events:none;"></span></li>
+        <li class="navbar__item"><a href="#" id="logout-btn" class="navbar__link">🚪 Выход</a></li>
+    </ul>
+</nav>
+
+<main class="container">
+
+    <div class="view__header">
+        <h1 id="form-title">✏️ Добавление студента</h1>
+        <a href="index.html" class="btn btn--secondary">← Назад к списку</a>
+    </div>
+
+    <form id="student-form" novalidate autocomplete="off">
+
+        <input type="hidden" id="form-student-id" value="" />
+
+        <div class="form-grid">
+
+            <div class="form-group form-group--full">
+                <label for="form-fullname">ФИО студента <span class="required">*</span></label>
+                <input type="text" id="form-fullname" name="fullname"
+                       placeholder="Иванов Иван Иванович"
+                       required
+                       minlength="2"
+                       maxlength="100"
+                       pattern="[А-Яа-яЁёA-Za-z]+([\s\-][А-Яа-яЁёA-Za-z]+)*"
+                       title="Только буквы, одиночные пробелы и дефис."
+                       autocomplete="off"
+                       spellcheck="false" />
+                <span class="form-error" id="error-fullname"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="form-group">Группа <span class="required">*</span></label>
+                <input type="text" id="form-group" name="group"
+                       placeholder="P3224"
+                       required
+                       minlength="5"
+                       maxlength="5"
+                       pattern="[A-Za-z][1-6][0-9]{3}"
+                       title="Формат: буква + курс (1–6) + 3 цифры. Пример: P3224"
+                       autocomplete="off"
+                       autocapitalize="characters"
+                       spellcheck="false" />
+                <span class="form-error" id="error-group"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="form-isuid">ИСУ ID <span class="required">*</span></label>
+                <input type="number" id="form-isuid" name="isuId"
+                       placeholder="123456"
+                       required
+                       min="100000"
+                       max="999999"
+                       step="1"
+                       inputmode="numeric"
+                       title="Целое число от 100000 до 999999. Уникально." />
+                <span class="form-error" id="error-isuid"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="form-dorm">Общежитие <span class="required">*</span></label>
+                <input type="number" id="form-dorm" name="dormNumber"
+                       placeholder="3"
+                       required
+                       min="1"
+                       max="10"
+                       step="1"
+                       inputmode="numeric"
+                       title="Номер общежития от 1 до 10" />
+                <span class="form-error" id="error-dorm"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="form-room">Комната <span class="required">*</span></label>
+                <input type="number" id="form-room" name="roomNumber"
+                       placeholder="101"
+                       required
+                       min="100"
+                       max="999"
+                       step="1"
+                       inputmode="numeric"
+                       title="Трёхзначный номер комнаты от 100 до 999" />
+                <span class="form-error" id="error-room"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="form-movein">Срок заселения <span class="required">*</span></label>
+                <input type="date" id="form-movein" name="moveInDate"
+                       required
+                       min="2018-01-01"
+                       max="2035-12-31"
+                       title="Дата в диапазоне 2018–2035" />
+                <span class="form-error" id="error-movein"></span>
+            </div>
+
+            <div class="form-group form-group--checkbox">
+                <label for="form-foreigner">Иностранец</label>
+                <input type="checkbox" id="form-foreigner" name="isForeigner" />
+            </div>
+
+            <div class="form-group form-group--full">
+                <label for="form-notes">Заметки</label>
+                <textarea id="form-notes" name="notes" rows="3"
+                          maxlength="500"
+                          placeholder="Дополнительная информация… (до 500 символов, без / \ &quot; ' < >)"></textarea>
+                <span class="form-error" id="error-notes"></span>
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--success" id="form-submit-btn">💾 Сохранить</button>
+            <button type="reset" class="btn btn--secondary" id="form-reset-btn">↺ Очистить</button>
+        </div>
+    </form>
+
+</main>
+
+<script src="js/auth.js" defer></script>
+<script src="js/api.js" defer></script>
+<script src="js/validation.js" defer></script>
+<script src="js/students.js" defer></script>
+<script src="js/ui.js" defer></script>
+<script src="js/app.js" defer></script>
+
+</body>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>

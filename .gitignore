@@ -39,8 +39,8 @@ build/
 
 # Секреты и конфигурация
 .env
-.env.*
-!.env.example
+.env
+!.env
 
 # Логи
 *.log

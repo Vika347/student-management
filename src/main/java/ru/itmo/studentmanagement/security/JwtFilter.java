@@ -9,6 +9,7 @@ import ru.itmo.studentmanagement.auth.jwt.JwtService;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.core.MediaType;
+
 import java.util.Map;
 import java.io.IOException;
 
@@ -21,11 +22,14 @@ public class JwtFilter implements ContainerRequestFilter {
     private JwtService jwtService;
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext)
+            throws IOException {
 
         String path = requestContext.getUriInfo().getPath();
+        String method = requestContext.getMethod();
 
-        if (path.startsWith("auth")) {
+        // Публичные маршруты авторизации и CORS preflight
+        if (path.startsWith("auth") || method.equals("OPTIONS")) {
             return;
         }
 
@@ -47,7 +51,9 @@ public class JwtFilter implements ContainerRequestFilter {
         context.abortWith(
                 Response.status(401)
                         .type(MediaType.APPLICATION_JSON)
-                        .entity(Map.of("error", Map.of("message", message)))
+                        .entity(Map.of(
+                                "error", Map.of("message", message)
+                        ))
                         .build()
         );
     }

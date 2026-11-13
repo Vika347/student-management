@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Досье студента</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐈</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__icon">🐈</span>
+        <span class="navbar__title">Студенты</span>
+    </div>
+    <ul class="navbar__menu">
+        <li class="navbar__item"><a href="index.html" class="navbar__link">📋 Список</a></li>
+        <li class="navbar__item" id="navbar-add-link">
+            <a href="form.html" class="navbar__link">➕ Добавить</a>
+        </li>
+        <li class="navbar__item"><a href="swagger.html" class="navbar__link">📖 API</a></li>
+        <li class="navbar__item"><span id="navbar-user" class="navbar__link" style="pointer-events:none;"></span></li>
+        <li class="navbar__item"><a href="#" id="logout-btn" class="navbar__link">🚪 Выход</a></li>
+    </ul>
+</nav>
+
+<main class="container">
+
+    <div class="view__header">
+        <h1>📄 Досье студента</h1>
+        <a href="index.html" class="btn btn--secondary">← Назад к списку</a>
+    </div>
+
+    <div id="profile-content" class="profile-card">
+        <p>⏳ Загрузка данных… Если текст не меняется — возможно, студент не найден.</p>
+    </div>
+
+</main>
+
+<script src="js/auth.js" defer></script>
+<script src="js/api.js" defer></script>
+<script src="js/validation.js" defer></script>
+<script src="js/students.js" defer></script>
+<script src="js/ui.js" defer></script>
+<script src="js/app.js" defer></script>
+
+</body>
+</html>
