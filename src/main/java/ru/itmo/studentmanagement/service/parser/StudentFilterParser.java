@@ -3,9 +3,11 @@ package ru.itmo.studentmanagement.service.parser;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonNumber;
+import jakarta.ws.rs.BadRequestException;
 
 import java.util.Set;
-//Проверяет допустимые названия фильтров
+
+// Проверяет допустимые названия фильтров и типы значений
 public class StudentFilterParser {
 
     private static final Set<String> ALLOWED_FIELDS = Set.of(
@@ -19,14 +21,14 @@ public class StudentFilterParser {
 
     public StudentFilterParser(JsonObject filters) {
         if (filters == null) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Необходимо передать JSON с фильтрами"
             );
         }
 
         for (String field : filters.keySet()) {
             if (!ALLOWED_FIELDS.contains(field)) {
-                throw new IllegalArgumentException(
+                throw new BadRequestException(
                         "Неизвестный параметр: " + field
                 );
             }
@@ -35,12 +37,16 @@ public class StudentFilterParser {
         this.filters = filters;
     }
 
+    // Получение строкового значения
     public String getString(String field) {
         JsonValue value = getValue(field);
-        if (value == null) return null;
+
+        if (value == null) {
+            return null;
+        }
 
         if (value.getValueType() != JsonValue.ValueType.STRING) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " должно быть строкой"
             );
         }
@@ -48,15 +54,19 @@ public class StudentFilterParser {
         return filters.getString(field);
     }
 
+    // Получение целого числа Integer
     public Integer getInteger(String field) {
         JsonValue value = getValue(field);
-        if (value == null) return null;
+
+        if (value == null) {
+            return null;
+        }
 
         if (value.getValueType() == JsonValue.ValueType.NUMBER) {
             JsonNumber number = filters.getJsonNumber(field);
 
             if (!number.isIntegral()) {
-                throw new IllegalArgumentException(
+                throw new BadRequestException(
                         "Поле " + field + " должно быть целым числом"
                 );
             }
@@ -64,33 +74,40 @@ public class StudentFilterParser {
             try {
                 return number.intValueExact();
             } catch (ArithmeticException e) {
-                throw new IllegalArgumentException(
+                throw new BadRequestException(
                         "Слишком большое число в поле " + field
                 );
             }
         }
 
         String text = getString(field);
-        if (text.isBlank()) return null;
+
+        if (text.isBlank()) {
+            return null;
+        }
 
         try {
             return Integer.valueOf(text);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " должно быть целым числом"
             );
         }
     }
 
+    // Получение целого числа Long
     public Long getLong(String field) {
         JsonValue value = getValue(field);
-        if (value == null) return null;
+
+        if (value == null) {
+            return null;
+        }
 
         if (value.getValueType() == JsonValue.ValueType.NUMBER) {
             JsonNumber number = filters.getJsonNumber(field);
 
             if (!number.isIntegral()) {
-                throw new IllegalArgumentException(
+                throw new BadRequestException(
                         "Поле " + field + " должно быть целым числом"
                 );
             }
@@ -98,27 +115,34 @@ public class StudentFilterParser {
             try {
                 return number.longValueExact();
             } catch (ArithmeticException e) {
-                throw new IllegalArgumentException(
+                throw new BadRequestException(
                         "Слишком большое число в поле " + field
                 );
             }
         }
 
         String text = getString(field);
-        if (text.isBlank()) return null;
+
+        if (text.isBlank()) {
+            return null;
+        }
 
         try {
             return Long.valueOf(text);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " должно быть целым числом"
             );
         }
     }
 
+    // Получение логического значения Boolean
     public Boolean getBoolean(String field) {
         JsonValue value = getValue(field);
-        if (value == null) return null;
+
+        if (value == null) {
+            return null;
+        }
 
         if (value.getValueType() == JsonValue.ValueType.TRUE) {
             return true;
@@ -129,16 +153,25 @@ public class StudentFilterParser {
         }
 
         String text = getString(field);
-        if (text.isBlank()) return null;
 
-        if (text.equalsIgnoreCase("true")) return true;
-        if (text.equalsIgnoreCase("false")) return false;
+        if (text.isBlank()) {
+            return null;
+        }
 
-        throw new IllegalArgumentException(
+        if (text.equalsIgnoreCase("true")) {
+            return true;
+        }
+
+        if (text.equalsIgnoreCase("false")) {
+            return false;
+        }
+
+        throw new BadRequestException(
                 "Поле " + field + " должно быть true или false"
         );
     }
 
+    // Получение значения из JSON
     private JsonValue getValue(String field) {
         if (!filters.containsKey(field) || filters.isNull(field)) {
             return null;
@@ -147,4 +180,3 @@ public class StudentFilterParser {
         return filters.get(field);
     }
 }
-

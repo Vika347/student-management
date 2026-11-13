@@ -113,6 +113,7 @@ public class Student {
     }
 
     // Дата заселения не старше 10 календарных лет
+
     @AssertTrue(
             message = "Дата заселения не может быть старше 10 лет"
     )
@@ -121,10 +122,11 @@ public class Student {
             return true;
         }
 
-        int currentYear = LocalDate.now().getYear();
-
-        return settlementDate.getYear() >= currentYear - 10;
+        return !settlementDate.isBefore(
+                LocalDate.now().minusYears(10)
+        );
     }
+
 
     // Проверка количества слов в заметках
     @AssertTrue(

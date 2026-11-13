@@ -1,7 +1,6 @@
 package ru.itmo.studentmanagement.user.entity;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Cacheable;
 
 @Cacheable(false)
 @Entity
@@ -12,7 +11,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
 
     @Column(nullable = false, unique = true)

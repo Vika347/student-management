@@ -31,7 +31,7 @@ public class StudentDTO {
     )
     private String group;
 
-    // ИСУ:  6 цифр
+    // ИСУ: 6 цифр
     @NotNull(message = "Номер ИСУ обязателен")
     @Min(
             value = 100000,
@@ -105,9 +105,9 @@ public class StudentDTO {
             return true;
         }
 
-        int currentYear = LocalDate.now().getYear();
-
-        return settlementDate.getYear() >= currentYear - 10;
+        return !settlementDate.isBefore(
+                LocalDate.now().minusYears(10)
+        );
     }
 
     // Заметки: не более 50 слов

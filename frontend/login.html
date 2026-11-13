@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+    <title>Вход</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__icon">🐈</span>
+        <span class="navbar__title">Студенты</span>
+    </div>
+</nav>
+
+<main class="container">
+
+    <div class="view__header">
+        <h1>🔐 Вход в систему</h1>
+    </div>
+
+    <form id="login-form" class="form-grid">
+
+        <div class="form-group form-group--full">
+            <label for="login-username">Логин</label>
+            <input type="text"
+                   id="login-username"
+                   required
+                   autocomplete="username" />
+        </div>
+
+        <div class="form-group form-group--full">
+            <label for="login-password">Пароль</label>
+            <input type="password"
+                   id="login-password"
+                   required
+                   autocomplete="current-password" />
+        </div>
+
+        <div class="form-group form-group--full">
+            <span class="form-error" id="auth-error"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary">
+                Войти
+            </button>
+        </div>
+
+    </form>
+
+    <p>
+        Нет аккаунта?
+        <a href="register.html">Зарегистрироваться</a>
+    </p>
+
+</main>
+
+<script src="js/api.js" defer></script>
+<script src="js/auth.js" defer></script>
+
+</body>
+</html>

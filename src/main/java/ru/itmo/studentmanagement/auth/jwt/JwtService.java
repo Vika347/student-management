@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import ru.itmo.studentmanagement.user.entity.User;
 import jakarta.enterprise.context.ApplicationScoped;
+import io.jsonwebtoken.JwtException;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -102,12 +103,19 @@ public class JwtService {
     }
 
     // Общая проверка подписи, срока действия и типа токена
+
     private boolean validateTokenType(String token, String expectedType) {
         try {
             Claims claims = getClaims(token);
-            return expectedType.equals(claims.get("type", String.class));
-        } catch (Exception e) {
+
+            return expectedType.equals(
+                    claims.get("type", String.class)
+            );
+
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
+
 }
+

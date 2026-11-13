@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar__brand">
+        <span class="navbar__icon">🐈</span>
+        <span class="navbar__title">Студенты</span>
+    </div>
+</nav>
+
+<main class="container">
+
+    <div class="view__header">
+        <h1>📝 Регистрация</h1>
+    </div>
+
+    <form id="register-form" class="form-grid">
+
+        <div class="form-group form-group--full">
+            <label for="register-username">Логин</label>
+            <input type="text"
+                   id="register-username"
+                   required
+                   autocomplete="username" />
+        </div>
+
+        <div class="form-group form-group--full">
+            <label for="register-email">Email</label>
+            <input type="email"
+                   id="register-email"
+                   required
+                   autocomplete="email" />
+        </div>
+
+        <div class="form-group form-group--full">
+            <label for="register-password">Пароль</label>
+            <input type="password"
+                   id="register-password"
+                   required
+                   autocomplete="new-password" />
+        </div>
+
+        <div class="form-group form-group--full">
+            <span class="form-error" id="auth-error"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary">
+                Зарегистрироваться
+            </button>
+        </div>
+
+    </form>
+
+    <p>
+        Уже есть аккаунт?
+        <a href="login.html">Войти</a>
+    </p>
+
+</main>
+
+<script src="js/api.js" defer></script>
+<script src="js/auth.js" defer></script>
+
+</body>
+</html>

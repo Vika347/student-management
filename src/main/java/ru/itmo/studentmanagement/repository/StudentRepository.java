@@ -5,9 +5,8 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-
+import jakarta.ws.rs.BadRequestException;
 import ru.itmo.studentmanagement.entity.Student;
-import ru.itmo.studentmanagement.exception.BadRequestException;
 
 import java.time.LocalDate;
 import java.util.List;

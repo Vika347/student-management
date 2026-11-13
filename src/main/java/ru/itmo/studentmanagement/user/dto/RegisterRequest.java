@@ -12,6 +12,7 @@ public class RegisterRequest {
 
     @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Некорректный формат email")
+    @Size(max = 255, message = "Email не должен превышать 255 символов")
     private String email;
 
     @NotBlank(message = "Пароль не может быть пустым")

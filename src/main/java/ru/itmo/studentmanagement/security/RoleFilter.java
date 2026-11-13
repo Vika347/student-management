@@ -1,19 +1,19 @@
 package ru.itmo.studentmanagement.security;
 
+import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
+
 import ru.itmo.studentmanagement.auth.jwt.JwtService;
-import jakarta.annotation.Priority;
-import jakarta.ws.rs.Priorities;
-import jakarta.ws.rs.core.MediaType;
+import ru.itmo.studentmanagement.exception.ApiErrorResponse;
 
 import java.io.IOException;
-import java.util.Map;
 
-// Проверяет права пользователя после проверки JWT
 @Provider
 @Priority(Priorities.AUTHORIZATION)
 public class RoleFilter implements ContainerRequestFilter {
@@ -28,42 +28,69 @@ public class RoleFilter implements ContainerRequestFilter {
         String path = requestContext.getUriInfo().getPath();
         String method = requestContext.getMethod();
 
-        // Пропускаем авторизацию и CORS preflight
-        if (path.startsWith("auth") || method.equals("OPTIONS")) {
+        // Публичные маршруты авторизации и CORS preflight
+        if ("OPTIONS".equals(method)
+                || path.equals("auth/login")
+                || path.equals("auth/register")
+                || path.equals("auth/refresh")) {
             return;
         }
 
-        String authorizationHeader =
-                requestContext.getHeaderString("Authorization");
+        // Проверяем, требует ли запрос роли ADMIN
+        boolean isStudentModification =
+                (path.equals("students") || path.startsWith("students/"))
+                        && ("POST".equals(method)
+                        || "PUT".equals(method)
+                        || "PATCH".equals(method)
+                        || "DELETE".equals(method));
 
-        if (authorizationHeader == null
-                || !authorizationHeader.startsWith("Bearer ")) {
+        boolean requiresAdmin =
+                path.equals("admin")
+                        || path.startsWith("admin/")
+                        || isStudentModification;
+
+        // Для остальных запросов дополнительная проверка роли не нужна
+        if (!requiresAdmin) {
             return;
         }
 
-        String token = authorizationHeader.substring(7);
+        String header = requestContext.getHeaderString("Authorization");
+
+        if (header == null || !header.startsWith("Bearer ")) {
+            sendError(requestContext,
+                    Response.Status.UNAUTHORIZED,
+                    "Требуется авторизация");
+            return;
+        }
+
+        String token = header.substring(7).trim();
+
+        if (!jwtService.validateAccessToken(token)) {
+            sendError(requestContext,
+                    Response.Status.UNAUTHORIZED,
+                    "Недействительный токен");
+            return;
+        }
+
         String role = jwtService.getRoleFromToken(token);
 
-        // Методы, изменяющие данные студентов
-        boolean isStudentModification =
-                path.startsWith("students")
-                        && (method.equals("POST")
-                        || method.equals("PUT")
-                        || method.equals("PATCH")
-                        || method.equals("DELETE"));
-
-        // Изменять студентов может только ADMIN
-        if ((path.startsWith("admin") || isStudentModification)
-                && !"ADMIN".equals(role)) {
-
-            requestContext.abortWith(
-                    Response.status(403)
-                            .type(MediaType.APPLICATION_JSON)
-                            .entity(Map.of(
-                                    "error", Map.of("message", "Недостаточно прав")
-                            ))
-                            .build()
-            );
+        if (!"ADMIN".equals(role)) {
+            sendError(requestContext,
+                    Response.Status.FORBIDDEN,
+                    "Недостаточно прав");
         }
+    }
+
+    private void sendError(
+            ContainerRequestContext context,
+            Response.Status status,
+            String message) {
+
+        context.abortWith(
+                Response.status(status)
+                        .type(MediaType.APPLICATION_JSON)
+                        .entity(new ApiErrorResponse(message))
+                        .build()
+        );
     }
 }

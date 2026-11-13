@@ -7,6 +7,7 @@ import jakarta.json.JsonObject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import jakarta.ws.rs.BadRequestException;
 
 import ru.itmo.studentmanagement.dto.StudentDTO;
 import ru.itmo.studentmanagement.entity.Student;
@@ -38,7 +39,6 @@ public class StudentService {
     private static final Logger logger =
             Logger.getLogger(StudentService.class.getName());
 
-
     // Создание студента с проверкой уникальности ИСУ
     public StudentDTO createStudent(StudentDTO dto) {
 
@@ -57,7 +57,6 @@ public class StudentService {
         return StudentMapper.toDTO(student);
     }
 
-
     // Получение всех студентов
     public List<StudentDTO> getAllStudents() {
 
@@ -66,7 +65,6 @@ public class StudentService {
                 .map(StudentMapper::toDTO)
                 .collect(Collectors.toList());
     }
-
 
     // Получение студента по ID
     public StudentDTO getStudentById(Long id) {
@@ -79,7 +77,6 @@ public class StudentService {
 
         return StudentMapper.toDTO(student);
     }
-
 
     // Удаление студента по ID
     public boolean deleteStudent(Long id) {
@@ -103,7 +100,6 @@ public class StudentService {
         return true;
     }
 
-
     // Частичное обновление через PATCH
     public StudentDTO updateStudent(Long id, JsonObject updates) {
 
@@ -114,7 +110,7 @@ public class StudentService {
         }
 
         if (updates == null || updates.isEmpty()) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Необходимо указать хотя бы одно поле для обновления"
             );
         }
@@ -125,7 +121,6 @@ public class StudentService {
 
                 case "fullName" ->
                         student.setFullName(getStringField(updates, field));
-
 
                 case "group" ->
                         student.setGroup(getStringField(updates, field));
@@ -143,14 +138,13 @@ public class StudentService {
 
                     Integer newIsuId = getIntegerField(updates, field);
 
-                    Student existingStudent = studentRepository.findByIsuId(newIsuId);
+                    Student existingStudent =
+                            studentRepository.findByIsuId(newIsuId);
 
                     if (existingStudent != null
                             && !existingStudent.getId().equals(id)) {
 
-                        throw new ConflictException(
-                                "Номер ИСУ уже занят"
-                        );
+                        throw new ConflictException("Номер ИСУ уже занят");
                     }
 
                     student.setIsuId(newIsuId);
@@ -163,12 +157,15 @@ public class StudentService {
                         student.setIsForeigner(getBooleanField(updates, field));
 
                 default ->
-                        throw new IllegalArgumentException("Неизвестное поле: " + field);
+                        throw new BadRequestException(
+                                "Неизвестное поле: " + field
+                        );
             }
         }
 
         // Проверка данных после обновления
-        Set<ConstraintViolation<Student>> violations = validator.validate(student);
+        Set<ConstraintViolation<Student>> violations =
+                validator.validate(student);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
@@ -186,7 +183,6 @@ public class StudentService {
         return StudentMapper.toDTO(updatedStudent);
     }
 
-
     // Полное обновление студента через PUT
     public StudentDTO updateStudentFully(Long id, StudentDTO dto) {
 
@@ -201,9 +197,7 @@ public class StudentService {
         if (existingStudent != null
                 && !existingStudent.getId().equals(id)) {
 
-            throw new ConflictException(
-                    "Номер ИСУ уже занят"
-            );
+            throw new ConflictException("Номер ИСУ уже занят");
         }
 
         student.setFullName(dto.getFullName());
@@ -216,7 +210,8 @@ public class StudentService {
         student.setNotes(dto.getNotes());
 
         // Проверка всех полей
-        Set<ConstraintViolation<Student>> violations = validator.validate(student);
+        Set<ConstraintViolation<Student>> violations =
+                validator.validate(student);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
@@ -228,7 +223,6 @@ public class StudentService {
 
         return StudentMapper.toDTO(updatedStudent);
     }
-
 
     // Общая фильтрация
     public List<StudentDTO> getStudentsByFilters(
@@ -250,44 +244,40 @@ public class StudentService {
         // Проверка формата даты
         LocalDate parsedDate = null;
 
-        if (settlementDate != null
-                && !settlementDate.isBlank()) {
+        if (settlementDate != null && !settlementDate.isBlank()) {
 
             try {
                 parsedDate = LocalDate.parse(settlementDate);
 
             } catch (DateTimeParseException e) {
-
-                throw new IllegalArgumentException(
+                throw new BadRequestException(
                         "settlementDate должна быть в формате ГГГГ-ММ-ДД"
                 );
             }
         }
 
         // Фильтрация
-        List<Student> students =
-                studentRepository.findByFilters(
-                        id,
-                        fullName,
-                        group,
-                        isuId,
-                        dormNumber,
-                        roomNumber,
-                        parsedDate,
-                        isForeigner,
-                        notes,
-                        search,
-                        sortBy,
-                        sortOrder,
-                        page,
-                        size
-                );
+        List<Student> students = studentRepository.findByFilters(
+                id,
+                fullName,
+                group,
+                isuId,
+                dormNumber,
+                roomNumber,
+                parsedDate,
+                isForeigner,
+                notes,
+                search,
+                sortBy,
+                sortOrder,
+                page,
+                size
+        );
 
         return students.stream()
                 .map(StudentMapper::toDTO)
                 .toList();
     }
-
 
     // Получение студентов через QUERY с JSON-фильтрами
     public List<StudentDTO> queryStudents(JsonObject filters) {

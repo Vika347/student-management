@@ -29,16 +29,17 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.students (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     dorm_number integer NOT NULL,
     full_name character varying(255) NOT NULL,
     student_group character varying(255) NOT NULL,
     is_foreigner boolean NOT NULL,
     isu_id integer NOT NULL,
-    notes character varying(255),
+    notes character varying(500),
     room_number integer NOT NULL,
     settlement_date date NOT NULL
 );
+
 
 
 --
@@ -46,7 +47,7 @@ CREATE TABLE public.students (
 --
 
 CREATE SEQUENCE public.students_id_seq
-    AS integer
+    AS bigint
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE

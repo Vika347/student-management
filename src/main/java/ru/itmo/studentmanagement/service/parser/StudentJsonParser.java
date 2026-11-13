@@ -3,6 +3,7 @@ package ru.itmo.studentmanagement.service.parser;
 import jakarta.json.JsonNumber;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
+import jakarta.ws.rs.BadRequestException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -13,14 +14,14 @@ public class StudentJsonParser {
     public static String getStringField(JsonObject json, String field) {
         if (json == null || !json.containsKey(field)
                 || json.isNull(field)) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " отсутствует"
             );
         }
 
         if (json.get(field).getValueType()
                 != JsonValue.ValueType.STRING) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " должно быть строкой"
             );
         }
@@ -32,14 +33,14 @@ public class StudentJsonParser {
     public static int getIntegerField(JsonObject json, String field) {
         if (json == null || !json.containsKey(field)
                 || json.isNull(field)) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " отсутствует"
             );
         }
 
         if (json.get(field).getValueType()
                 != JsonValue.ValueType.NUMBER) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " должно быть числом"
             );
         }
@@ -47,7 +48,7 @@ public class StudentJsonParser {
         JsonNumber number = json.getJsonNumber(field);
 
         if (!number.isIntegral()) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " должно быть целым числом"
             );
         }
@@ -55,7 +56,7 @@ public class StudentJsonParser {
         try {
             return number.intValueExact();
         } catch (ArithmeticException e) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " содержит слишком большое число"
             );
         }
@@ -65,7 +66,7 @@ public class StudentJsonParser {
     public static boolean getBooleanField(JsonObject json, String field) {
         if (json == null || !json.containsKey(field)
                 || json.isNull(field)) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " отсутствует"
             );
         }
@@ -74,7 +75,7 @@ public class StudentJsonParser {
 
         if (type != JsonValue.ValueType.TRUE
                 && type != JsonValue.ValueType.FALSE) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field + " должно быть логическим значением"
             );
         }
@@ -89,7 +90,7 @@ public class StudentJsonParser {
         try {
             return LocalDate.parse(value);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException(
+            throw new BadRequestException(
                     "Поле " + field
                             + " должно содержать дату в формате ГГГГ-ММ-ДД"
             );

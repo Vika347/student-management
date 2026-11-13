@@ -2,9 +2,11 @@ package ru.itmo.studentmanagement.user.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-import ru.itmo.studentmanagement.user.entity.User;
 import jakarta.transaction.Transactional;
+
+import ru.itmo.studentmanagement.user.entity.User;
 
 @ApplicationScoped
 public class UserRepository {
@@ -20,7 +22,8 @@ public class UserRepository {
                     )
                     .setParameter("username", username)
                     .getSingleResult();
-        } catch (Exception e) {
+
+        } catch (NoResultException e) {
             return null;
         }
     }
@@ -33,12 +36,12 @@ public class UserRepository {
                     )
                     .setParameter("email", email)
                     .getSingleResult();
-        } catch (Exception e) {
+
+        } catch (NoResultException e) {
             return null;
         }
     }
 
-    // Сохранение пользователя в базе данных
     @Transactional
     public void save(User user) {
         entityManager.persist(user);
