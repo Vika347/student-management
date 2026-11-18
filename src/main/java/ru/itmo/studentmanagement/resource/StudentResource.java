@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import ru.itmo.studentmanagement.filtr.StudentFilterCriteria;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -67,7 +68,7 @@ public class StudentResource {
         int actualPage = page == null ? 1 : page;
         int actualSize = size == null ? 10 : size;
 
-        long offset = ((long) actualPage - 1) * actualSize;
+        long offset = ((long) actualPage - 1) * actualSize; //количество записей, которые нужно пропустить перед получением текущей страницы
 
         if (offset > Integer.MAX_VALUE) {
             throw new BadRequestException(
@@ -99,7 +100,7 @@ public class StudentResource {
         JsonValue value = filters.get(name);
 
         try {
-            if (value instanceof JsonNumber number) {
+            if (value instanceof JsonNumber number) { //одновременно проверяет тип значения и создаёт переменную number
                 if (!number.isIntegral()) {
                     throw new BadRequestException(
                             "Поле " + name + " должно быть целым числом"
@@ -108,6 +109,7 @@ public class StudentResource {
                 return number.intValueExact();
             }
 
+            //преобразование из строки в цлое число
             if (value instanceof JsonString string) {
                 return Integer.valueOf(string.getString());
             }
@@ -155,7 +157,7 @@ public class StudentResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<StudentDTO> getAllStudents(
-            @QueryParam("id") Long id,
+            @QueryParam("id") Long id, //аннотация Jakarta REST для получения параметров из URL
             @QueryParam("fullName") String fullName,
             @QueryParam("group") String group,
             @QueryParam("isuId") Integer isuId,
@@ -172,7 +174,7 @@ public class StudentResource {
 
         validateParameters(sortBy, sortOrder, page, size);
 
-        return studentService.getStudentsByFilters(
+        StudentFilterCriteria filter = new StudentFilterCriteria(
                 id,
                 fullName,
                 group,
@@ -188,6 +190,8 @@ public class StudentResource {
                 page,
                 size
         );
+
+        return studentService.getStudentsByFilters(filter);
     }
 
     // Создание нового студента
@@ -214,6 +218,7 @@ public class StudentResource {
 
         StudentDTO createdStudent = studentService.createStudent(dto);
 
+        //Формирование HTTP-ответа
         return Response.status(Response.Status.CREATED)
                 .entity(createdStudent)
                 .build();

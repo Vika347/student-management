@@ -157,10 +157,7 @@
                        id="form-movein"
                        name="moveInDate"
                        required
-                       min="2018-01-01"
-                       max="2035-12-31"
-                       data-age-limit="10"
-                       title="Дата в диапазоне 2018–2035" />
+                       title="Дата заселения не может быть в будущем" />
 
                 <span class="form-error" id="error-movein"></span>
             </div>
@@ -182,14 +179,13 @@
                           name="notes"
                           rows="3"
                           maxlength="500"
-                          data-forbid="/&quot;'\\<>"
-                          data-max-words="50"
+                          data-forbid="/\*&quot;&lt;&gt;"
                           placeholder="Дополнительная информация… (до 500 символов, без запрещённых символов)"></textarea>
 
                 <span class="form-error" id="error-notes"></span>
             </div>
 
-        </div>
+
 
         <div class="form-actions">
             <button type="submit"

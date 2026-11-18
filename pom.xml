@@ -13,7 +13,7 @@
 
     <!-- Сборка приложения для Payara -->
     <packaging>war</packaging>
-
+    <!-- Настройка Java-->
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,7 +29,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Драйвер PostgreSQL -->
+        <!-- PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

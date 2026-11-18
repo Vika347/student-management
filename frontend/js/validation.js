@@ -57,10 +57,7 @@ function showServerErrors(err) {
         dormNumber: "dorm",
         roomNumber: "room",
         settlementDate: "movein",
-        settlementYearValid: "movein",
-        settlementNotTooOld: "movein",
-        notes: "notes",
-        notesWordCountValid: "notes"
+        notes: "notes"
     };
 
     let shown = false;
@@ -147,30 +144,21 @@ function validateForm() {
     if (!moveIn.checkValidity()) {
         showError(
             "movein",
-            "Дата заселения должна быть в диапазоне 2018–2035"
+            "Введите корректную дату заселения"
         );
         isValid = false;
-    }
-
-
-    // Студент не может жить в общежитии больше 10 лет
-    if (moveIn.value !== "") {
+    } else if (moveIn.value !== "") {
         const today = new Date();
-
-        const tenYearsAgo = new Date(
-            today.getFullYear() - 10,
-            today.getMonth(),
-            today.getDate()
-        );
+        today.setHours(0, 0, 0, 0);
 
         const moveInDate = new Date(
             moveIn.value + "T00:00:00"
         );
 
-        if (moveInDate < tenYearsAgo) {
+        if (moveInDate > today) {
             showError(
                 "movein",
-                "Студент не может жить в общежитии больше 10 лет"
+                "Дата заселения не может быть в будущем"
             );
             isValid = false;
         }
@@ -201,21 +189,6 @@ function validateForm() {
         isValid = false;
     }
 
-
-    // Заметки: не больше 50 слов
-    const notesText = notes.value.trim();
-
-    if (notesText !== "") {
-        const words = notesText.split(/\s+/);
-
-        if (words.length > 50) {
-            showError(
-                "notes",
-                "В заметках должно быть не больше 50 слов"
-            );
-            isValid = false;
-        }
-    }
 
     return isValid;
 }

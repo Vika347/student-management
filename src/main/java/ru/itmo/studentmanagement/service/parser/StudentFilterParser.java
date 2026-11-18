@@ -1,9 +1,11 @@
+//используется для QUERY, когда нужно прочитать необязательные параметры поиска и создать StudentFilterCriteria
 package ru.itmo.studentmanagement.service.parser;
 
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonNumber;
 import jakarta.ws.rs.BadRequestException;
+import ru.itmo.studentmanagement.filtr.StudentFilterCriteria;
 
 import java.util.Set;
 
@@ -179,4 +181,27 @@ public class StudentFilterParser {
 
         return filters.get(field);
     }
+
+
+    // Преобразование JSON-фильтров в StudentFilterCriteria
+    public StudentFilterCriteria parse() {
+
+        return new StudentFilterCriteria(
+                getLong("id"),
+                getString("fullName"),
+                getString("group"),
+                getInteger("isuId"),
+                getInteger("dormNumber"),
+                getInteger("roomNumber"),
+                getString("settlementDate"),
+                getBoolean("isForeigner"),
+                getString("notes"),
+                getString("search"),
+                getString("sortBy"),
+                getString("sortOrder"),
+                getInteger("page"),
+                getInteger("size")
+        );
+    }
+
 }

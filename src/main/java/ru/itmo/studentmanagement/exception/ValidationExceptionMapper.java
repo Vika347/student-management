@@ -9,7 +9,7 @@ import jakarta.ws.rs.ext.Provider;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+//Обработка ошибок Bean Validation
 @Provider
 public class ValidationExceptionMapper
         implements ExceptionMapper<ConstraintViolationException> {

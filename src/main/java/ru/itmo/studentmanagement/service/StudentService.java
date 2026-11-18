@@ -12,6 +12,7 @@ import jakarta.ws.rs.BadRequestException;
 import ru.itmo.studentmanagement.dto.StudentDTO;
 import ru.itmo.studentmanagement.entity.Student;
 import ru.itmo.studentmanagement.exception.ConflictException;
+import ru.itmo.studentmanagement.filtr.StudentFilterCriteria;
 import ru.itmo.studentmanagement.mapper.StudentMapper;
 import ru.itmo.studentmanagement.repository.StudentRepository;
 import ru.itmo.studentmanagement.service.parser.StudentFilterParser;
@@ -24,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static ru.itmo.studentmanagement.service.parser.StudentJsonParser.*;
+import static ru.itmo.studentmanagement.service.parser.StudentJsonFieldParser.*;
 
 // Сервис с бизнес-логикой работы со студентами
 @Stateless
@@ -42,11 +43,7 @@ public class StudentService {
     // Создание студента с проверкой уникальности ИСУ
     public StudentDTO createStudent(StudentDTO dto) {
 
-        Student existingStudent = studentRepository.findByIsuId(dto.getIsuId());
-
-        if (existingStudent != null) {
-            throw new ConflictException("Номер ИСУ уже занят");
-        }
+        checkIsuIdUnique(dto.getIsuId(), null);
 
         Student student = StudentMapper.toEntity(dto);
 
@@ -138,14 +135,7 @@ public class StudentService {
 
                     Integer newIsuId = getIntegerField(updates, field);
 
-                    Student existingStudent =
-                            studentRepository.findByIsuId(newIsuId);
-
-                    if (existingStudent != null
-                            && !existingStudent.getId().equals(id)) {
-
-                        throw new ConflictException("Номер ИСУ уже занят");
-                    }
+                    checkIsuIdUnique(newIsuId, id);
 
                     student.setIsuId(newIsuId);
                 }
@@ -164,12 +154,7 @@ public class StudentService {
         }
 
         // Проверка данных после обновления
-        Set<ConstraintViolation<Student>> violations =
-                validator.validate(student);
-
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
+        validateStudent(student);
 
         // Сохранение изменений
         Student updatedStudent = studentRepository.update(student);
@@ -192,13 +177,7 @@ public class StudentService {
             return null;
         }
 
-        Student existingStudent = studentRepository.findByIsuId(dto.getIsuId());
-
-        if (existingStudent != null
-                && !existingStudent.getId().equals(id)) {
-
-            throw new ConflictException("Номер ИСУ уже занят");
-        }
+        checkIsuIdUnique(dto.getIsuId(), id);
 
         student.setFullName(dto.getFullName());
         student.setGroup(dto.getGroup());
@@ -210,12 +189,7 @@ public class StudentService {
         student.setNotes(dto.getNotes());
 
         // Проверка всех полей
-        Set<ConstraintViolation<Student>> violations =
-                validator.validate(student);
-
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
+        validateStudent(student);
 
         Student updatedStudent = studentRepository.update(student);
 
@@ -226,23 +200,12 @@ public class StudentService {
 
     // Общая фильтрация
     public List<StudentDTO> getStudentsByFilters(
-            Long id,
-            String fullName,
-            String group,
-            Integer isuId,
-            Integer dormNumber,
-            Integer roomNumber,
-            String settlementDate,
-            Boolean isForeigner,
-            String notes,
-            String search,
-            String sortBy,
-            String sortOrder,
-            Integer page,
-            Integer size) {
+            StudentFilterCriteria filter) {
 
         // Проверка формата даты
         LocalDate parsedDate = null;
+
+        String settlementDate = filter.settlementDate();
 
         if (settlementDate != null && !settlementDate.isBlank()) {
 
@@ -258,26 +221,15 @@ public class StudentService {
 
         // Фильтрация
         List<Student> students = studentRepository.findByFilters(
-                id,
-                fullName,
-                group,
-                isuId,
-                dormNumber,
-                roomNumber,
-                parsedDate,
-                isForeigner,
-                notes,
-                search,
-                sortBy,
-                sortOrder,
-                page,
-                size
+                filter,
+                parsedDate
         );
 
         return students.stream()
                 .map(StudentMapper::toDTO)
                 .toList();
     }
+
 
     // Получение студентов через QUERY с JSON-фильтрами
     public List<StudentDTO> queryStudents(JsonObject filters) {
@@ -286,21 +238,29 @@ public class StudentService {
         StudentFilterParser parser = new StudentFilterParser(filters);
 
         // Используем общую фильтрацию
-        return getStudentsByFilters(
-                parser.getLong("id"),
-                parser.getString("fullName"),
-                parser.getString("group"),
-                parser.getInteger("isuId"),
-                parser.getInteger("dormNumber"),
-                parser.getInteger("roomNumber"),
-                parser.getString("settlementDate"),
-                parser.getBoolean("isForeigner"),
-                parser.getString("notes"),
-                parser.getString("search"),
-                parser.getString("sortBy"),
-                parser.getString("sortOrder"),
-                parser.getInteger("page"),
-                parser.getInteger("size")
-        );
+        return getStudentsByFilters(parser.parse());
+    }
+
+
+    private void checkIsuIdUnique(Integer isuId, Long currentStudentId) {
+
+        Student existingStudent = studentRepository.findByIsuId(isuId);
+
+        if (existingStudent != null &&
+                (currentStudentId == null ||
+                        !existingStudent.getId().equals(currentStudentId))) {
+
+            throw new ConflictException("Номер ИСУ уже занят");
+        }
+    }
+
+    private void validateStudent(Student student) {
+
+        Set<ConstraintViolation<Student>> violations =
+                validator.validate(student);
+
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
     }
 }

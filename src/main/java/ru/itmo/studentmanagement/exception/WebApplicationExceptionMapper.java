@@ -26,7 +26,15 @@ public class WebApplicationExceptionMapper
             default -> "Ошибка обработки запроса";
         };
 
-        return Response.status(status)
+        // Сохраняем конкретные сообщения для ошибок 400 и 404
+        if ((status == 400 || status == 404)
+                && exception.getMessage() != null
+                && !exception.getMessage().isBlank()) {
+            message = exception.getMessage();
+        }
+
+        // Сохраняем статус и заголовки исходного HTTP-ответа
+        return Response.fromResponse(exception.getResponse())
                 .type(MediaType.APPLICATION_JSON)
                 .entity(new ApiErrorResponse(message))
                 .build();

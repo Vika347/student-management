@@ -7,7 +7,7 @@ import jakarta.ws.rs.ext.Provider;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+//Обработка непредвиденных ошибок и логирование
 @Provider
 public class InternalExceptionMapper
         implements ExceptionMapper<Exception> {

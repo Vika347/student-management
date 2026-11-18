@@ -2,8 +2,7 @@
 const API_BASE = "http://localhost:8081/student-management/api";
 
 
-// Собирает query-строку из объекта фильтров.
-// Пустые значения пропускает.
+// Собирает query-строку из объекта фильтров (пустые значения пропускает)
 function buildQueryString(params) {
     const parts = [];
 
@@ -26,7 +25,7 @@ function buildQueryString(params) {
 }
 
 
-// Базовая функция для любого запроса.
+// Функция для любого запроса.
 // Добавляет JWT-токен и обрабатывает ответ сервера.
 async function apiRequest(url, options) {
     options = options || {};

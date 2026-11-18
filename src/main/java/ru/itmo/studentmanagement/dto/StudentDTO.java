@@ -1,7 +1,6 @@
 package ru.itmo.studentmanagement.dto;
 
-import jakarta.validation.constraints.*;
-import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.validation.constraints.*; //аннотации для проверки данных
 import java.time.LocalDate;
 
 // Класс для передачи данных студента через REST API
@@ -80,54 +79,6 @@ public class StudentDTO {
     public StudentDTO() {
     }
 
-    // Проверка года заселения: 2018–2035
-    @JsonbTransient
-    @AssertTrue(
-            message = "Год заселения должен быть от 2018 до 2035"
-    )
-    public boolean isSettlementYearValid() {
-        if (settlementDate == null) {
-            return true;
-        }
-
-        int year = settlementDate.getYear();
-
-        return year >= 2018 && year <= 2035;
-    }
-
-    // Дата заселения не старше 10 календарных лет
-    @JsonbTransient
-    @AssertTrue(
-            message = "Дата заселения не может быть старше 10 лет"
-    )
-    public boolean isSettlementNotTooOld() {
-        if (settlementDate == null) {
-            return true;
-        }
-
-        return !settlementDate.isBefore(
-                LocalDate.now().minusYears(10)
-        );
-    }
-
-    // Заметки: не более 50 слов
-    @JsonbTransient
-    @AssertTrue(
-            message = "Заметки не могут содержать больше 50 слов"
-    )
-    public boolean isNotesWordCountValid() {
-        if (notes == null) {
-            return true;
-        }
-
-        String trimmed = notes.trim();
-
-        if (trimmed.isEmpty()) {
-            return true;
-        }
-
-        return trimmed.split("\\s+").length <= 50;
-    }
 
     // Геттеры и сеттеры
 

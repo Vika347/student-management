@@ -1,4 +1,3 @@
-
 package ru.itmo.studentmanagement.repository;
 
 import jakarta.ejb.Stateless;
@@ -6,7 +5,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.ws.rs.BadRequestException;
+
 import ru.itmo.studentmanagement.entity.Student;
+import ru.itmo.studentmanagement.filtr.StudentFilterCriteria;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -62,20 +63,22 @@ public class StudentRepository {
 
     // Получение студентов с фильтрацией, поиском, сортировкой и пагинацией
     public List<Student> findByFilters(
-            Long id,
-            String fullName,
-            String group,
-            Integer isuId,
-            Integer dormNumber,
-            Integer roomNumber,
-            LocalDate settlementDate,
-            Boolean isForeigner,
-            String notes,
-            String search,
-            String sortBy,
-            String sortOrder,
-            Integer page,
-            Integer size) {
+            StudentFilterCriteria filter,
+            LocalDate settlementDate) {
+
+        Long id = filter.id();
+        String fullName = filter.fullName();
+        String group = filter.group();
+        Integer isuId = filter.isuId();
+        Integer dormNumber = filter.dormNumber();
+        Integer roomNumber = filter.roomNumber();
+        Boolean isForeigner = filter.isForeigner();
+        String notes = filter.notes();
+        String search = filter.search();
+        String sortBy = filter.sortBy();
+        String sortOrder = filter.sortOrder();
+        Integer page = filter.page();
+        Integer size = filter.size();
 
         // Начало JPQL-запроса
         StringBuilder jpql = new StringBuilder(
@@ -269,4 +272,3 @@ public class StudentRepository {
         return query.getResultList();
     }
 }
-
