@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
@@ -32,7 +33,8 @@ public class RoleFilter implements ContainerRequestFilter {
         if ("OPTIONS".equals(method)
                 || path.equals("auth/login")
                 || path.equals("auth/register")
-                || path.equals("auth/refresh")) {
+                || path.equals("auth/refresh")
+                || path.equals("auth/logout")) {
             return;
         }
 
@@ -54,16 +56,16 @@ public class RoleFilter implements ContainerRequestFilter {
             return;
         }
 
-        String header = requestContext.getHeaderString("Authorization");
+        Cookie cookie = requestContext.getCookies().get("access_token");
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (cookie == null || cookie.getValue() == null || cookie.getValue().isBlank()) {
             sendError(requestContext,
                     Response.Status.UNAUTHORIZED,
                     "Требуется авторизация");
             return;
         }
 
-        String token = header.substring(7).trim();
+        String token = cookie.getValue();
 
         if (!jwtService.validateAccessToken(token)) {
             sendError(requestContext,

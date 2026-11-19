@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
@@ -36,20 +37,21 @@ public class JwtFilter implements ContainerRequestFilter {
         // Публичные маршруты
         if (path.equals("auth/login")
                 || path.equals("auth/register")
-                || path.equals("auth/refresh")) {
+                || path.equals("auth/refresh")
+                || path.equals("auth/logout")) {
             return;
         }
 
-        String header = requestContext.getHeaderString("Authorization");
+        Cookie cookie = requestContext.getCookies().get("access_token");
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (cookie == null) {
             sendError(requestContext, "Отсутствует токен авторизации");
             return;
         }
 
-        String token = header.substring(7).trim();
+        String token = cookie.getValue();
 
-        if (token.isEmpty()) {
+        if (token == null || token.isBlank()) {
             sendError(requestContext, "Пустой токен авторизации");
             return;
         }
